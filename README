@@ -1,0 +1,57 @@
+Olteanu Iulia, 324CC
+
+    Pentru rezolvarea temei, am plecat de la scheletul laboratorului 10, adaugand
+un paramentru in plus functiilor compute_get_request() si compute_post_request(), 
+pentru ca in momentul in care se primeste o comanda de tipul get_Books/get_book/
+add_book trebuie sa fie adaugat in headerul cererii catre server(Cookie sau 
+Authorization: Bearer ...).Functia corect() este folosita pentru a verifica corectitudinea
+datelor citite de la tastatura in cazul in care id-ul si page_count sunt numere, intoarce
+0 daca sirul de caractere dat ca a
+rgument contine si alte caractere inafara de cifre 
+si 1, in caz contrar.
+    In sursa client.c, exista un while, in care se citesc comenzile de la tastatura
+si in functie de aceasta se realizeaza dorintele clientului in interactiunea cu serverul:
+
+    * register : se ofera prompt pt username si password, se trimite cererea post serverului, 
+mesajul pe socketul deschis si se verifica ce raspuns se primeste, se afiseaza un mesaj de 
+eroare daca username-ul citit de la tastatura este deja folosit, altfel se afiseaza un mesaj de 
+confirmare a inregistrarii cu succes a contului.
+
+    * login : acesta comanda poate fi realizata  cu success numai in cazul in care nu este deja 
+conectat altcineva, nu pot fi realizate 2 login-uri succesive.Pentru acest motiv indicatorul ok 
+tine evidenta acestui lucru si daca acesta este diferit de 0 se afiseaza un mesaj de eroare. Altfel, 
+se ofera prompt pentru username si password, se creeaza mesajul si se trimite cererea de tip post,
+se trimite mesajul catre server, apoi se verifica mesajul primit si se printeaza un mesaj adecvat 
+in functie de raspunsul serverului : mesaj de eroare daca credentialele nu se potrivesc si un mesaj de
+succes pentru autentificarea corecta.
+
+    * enter_library :  biblioteca poate fi accesata numai in cazul in care a fost efectuat mai inainte
+un login cu succes. Daca acest lucru a fost realizat, atunci se trimite cererea de tip get, unde exista 
+si cookie-ul primit la login. 
+
+    * get_books : este permisa aceasta comanda numai daca clientul are acces la biblioteca, in caz contrar
+se afiseaza un mesaj de eroare. Altfel, se trimite o cerere de tip GET, se trimite mesajul si se verifica
+raspunsul primit de la server, afisandu-se un mesaj corespunzator.
+
+    * get_book : este permisa aceasta comanda numai daca clientul are acces la biblioteca, in caz contrar
+se afiseaza un mesaj de eroare. Dupa citirea id-ului de la tastatura, se verifica daca a fost introdusa o 
+data valida(id este un numar).Daca id nu este numar, atunci apare un mesaj de eroare, altfel se adauga id-ul
+in ruta de acces si pasii sunt similari cu cei din comanda get_books
+
+    * add_book : este permisa aceasta comanda numai daca clientul are acces la biblioteca, in caz contrar
+se afiseaza un mesaj de eroare. Se ofera prompt pentru citirea datelor de la tastatura si se verifica daca
+page_count este numar. Daca acesta este numar, atunci datele sunt valide, se construieste payload-ul si se 
+trimite o cerere de tip POST serverului.In functie de mesajul primit de catre server, se afiseaza un mesaj 
+corespunzator. 
+
+    * delete_book : este permisa aceasta comanda numai daca clientul are acces la biblioteca, in caz contrar
+se afiseaza un mesaj de eroare. Dupa citirea id-ului, are loc verificarea ceruta, daca id este numar sau nu.
+Daca a fost introdus un numar, atunci se trimite o cerere de tip DELETE, folosind functia compute_delete(), 
+ce este asemanatoare cu compute_get_request. Similar cu celelalte comenzi de mai sus, se printeaza un mesaj 
+in functie de raspunsul serverului.
+
+    * logout : acesta comanda poate fi realizata numai daca a fost efectuat un login mai intai, altfel apare
+un mesaj de eroare. In caz contrar, se trimite o cerere de tip GET, se verifica mesajul primit de la server 
+si se reseteaza cei 2 indicatori pt accesarea bibliotecii si login.
+
+    * exit : se iese din program prin break.
